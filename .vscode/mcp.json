@@ -4,7 +4,7 @@
             "type": "stdio",
             "command": "node",
             "args": [
-                "D:\\Repos\\azure-ai-vision-face-mcp-server\\liveness-server-typescript\\build\\index.js"
+                "${workspaceFolder}/liveness-server-typescript/build/index.js"
             ],
             "env": {
                 "FACEAPI_ENDPOINT": "your_value_here",
