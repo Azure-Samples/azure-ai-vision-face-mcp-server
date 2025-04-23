@@ -1,0 +1,16 @@
+{
+    "servers": {
+        "liveness-server": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "D:\\Repos\\azure-ai-vision-face-mcp-server\\liveness-server-typescript\\build\\index.js"
+            ],
+            "env": {
+                "FACEAPI_ENDPOINT": "your_value_here",
+                "FACEAPI_KEY": "your_value_here",
+                "FACEAPI_WEBSITE": "your_value_here"
+            }
+        }
+    }
+}

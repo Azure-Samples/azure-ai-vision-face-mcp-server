@@ -62,7 +62,7 @@ server.tool(
       };
     }
 
-    const res2 = await fetch(`https://liveness-webapp.azurewebsites.net/api/s`, {
+    const res2 = await fetch(`${FACEAPI_WEBSITE}/api/s`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ server.tool(
       };
     }
 
-    const finalUrl = "https://liveness-webapp.azurewebsites.net" + shortUrlPostfix;
+    const finalUrl = FACEAPI_WEBSITE + shortUrlPostfix;
 
     return {
       content: [
