@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { randomInt } from "crypto"; // Use crypto for random number generation in Node.js
 import express from "express"; // Import express for server functionality
@@ -66,23 +66,14 @@ server.tool(
   },
 );
 
-let transport: SSEServerTransport | null = null;
-const app = express();
-
-app.get("/", (req, res) => {
-  res.send("Hello World! This is a liveness server.");
+// Start the server
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("Liveness MCP Server running on stdio");
 }
-);
 
-app.get("/sse", (req, res) => {
-  transport = new SSEServerTransport("/messages", res);
-  server.connect(transport);
+main().catch((error) => {
+  console.error("Fatal error in main():", error);
+  process.exit(1);
 });
-
-app.post("/messages", (req, res) => {
-  if (transport) {
-    transport.handlePostMessage(req, res);
-  }
-});
-
-app.listen(port);
