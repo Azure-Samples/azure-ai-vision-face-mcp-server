@@ -90,9 +90,9 @@ server.tool(
       content: [
         {
           type: "text",
-          text: `Show the following url to the user to perform the liveness session. The assigned session ID is ${sessionId}. \n \
-                The user will needs to be instructed to visit the url and perform the liveness authentication session. 
-                After the user perform the authentication, call getLivenessResult to retrieve the result. ${finalUrl}`,
+          text: `Show the following url to the user to perform the liveness session. \n \
+                The user will needs to be instructed to visit the url ${finalUrl} and perform the liveness authentication session. 
+                After the user perform the authentication, call getLivenessResult with the session ID ${sessionId} to retrieve the result.`,
         },
       ],
     };
@@ -110,7 +110,7 @@ server.tool(
   async ({ sessionId }) => {
     
     const res = await fetch(`https://${FACEAPI_ENDPOINT}.cognitiveservices.azure.com/face/v1.2/detectLiveness-sessions/${sessionId}`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Ocp-Apim-Subscription-Key': FACEAPI_KEY,
       }
