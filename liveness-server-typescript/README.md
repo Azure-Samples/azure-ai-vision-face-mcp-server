@@ -1,16 +1,27 @@
 # azure-ai-vision-face-mcp-server-preview
 to use it:
 go to liveness-server-typescript folder, run
+```
 $ npm run build
-
+```
 then in the build folder, you have index.js
-there is a path issue in the built index.js, you need to change the first 2 lines to
-
-import { McpServer } from "@modelcontextprotocol/sdk/esm/server/mcp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/esm/server/sse.js";
+VS Code is configured with mcp.json, just add the keys
+Sample Claude config should be:
 
 
-Then you can right click liveness-server-typescript folder, select deploy to web app in visual studio code, and deploy it into a app service with node stack.
+```
+{
+  "mcpServers": {
+    "liveness-server": {
+      "command": "node",
+      "args": ["YOUR_PATH/build/index.js"],
+      "env": {
+                "FACEAPI_ENDPOINT": "apiendpoint",
+                "FACEAPI_KEY": "apikey",
+                "FACEAPI_WEBSITE": "https://yourexample.azurewebsites.net"
+        }
+    }
+  }
+}
 
-
-
+```
