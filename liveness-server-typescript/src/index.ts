@@ -1,9 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { randomInt } from "crypto"; // Use crypto for random number generation in Node.js
-import express from "express"; // Import express for server functionality
-const port = process.env.PORT || 3000
+import { v4 as uuidv4 } from 'uuid';
+const randomGuidID = uuidv4();
+
+const FACEAPI_ENDPOINT = process.env.FACEAPI_ENDPOINT??"";
+const FACEAPI_KEY = process.env.FACEAPI_KEY?? "";
+const FACEAPI_WEBSITE = process.env.FACEAPI_WEBSITE??"";
 
 // Create server instance
 const server = new McpServer({
@@ -18,15 +21,78 @@ server.tool(
   {
   },
   async () => {
-    const url = "https://liveness.session.test.com/?sessionId=28472mic82nmx";
+    if(FACEAPI_ENDPOINT == "" || FACEAPI_KEY == "" || FACEAPI_WEBSITE == "") {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Please set the FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE environment variables for the liveness server.`,
+          },
+        ],
+      };
+    }
+
+    const res = await fetch(`https://${FACEAPI_ENDPOINT}.cognitiveservices.azure.com/face/v1.2/detectLiveness-sessions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': FACEAPI_KEY,
+      },
+      body: JSON.stringify({
+        authTokenTimeToLiveInSeconds: 600,
+        livenessOperationMode: "PassiveActive",
+        sendResultsToClient: false,
+        deviceCorrelationId: randomGuidID,
+        enableSessionImage: true
+      }),
+    });
+  
+    const json = await res.json();
+    const sessionId = json.sessionId?? "";
+    const authToken = json.authToken?? "";
+
+    if(sessionId == "" || authToken == "") {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to create liveness session. Please check the FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE environment variables.`,
+          },
+        ],
+      };
+    }
+
+    const res2 = await fetch(`https://liveness-webapp.azurewebsites.net/api/s`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+      }
+    });
+
+    const json2 = await res2.json();
+    const shortUrlPostfix = json2.url?? "";
+
+    if(shortUrlPostfix == "") {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to create liveness session url. Please check the FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE environment variables.`,
+          },
+        ],
+      };
+    }
+
+    const finalUrl = "https://liveness-webapp.azurewebsites.net" + shortUrlPostfix;
 
     return {
       content: [
         {
           type: "text",
-          text: `Show the following url to the user to perform the liveness session. 
-                  The user will needs to be instructed to visit the url and perform the liveness authentication session. 
-                  After the user perform the authentication, call getLivenessResult to retrieve the result. ${url}`,
+          text: `Show the following url to the user to perform the liveness session. The assigned session ID is ${sessionId}. \n \
+                The user will needs to be instructed to visit the url and perform the liveness authentication session. 
+                After the user perform the authentication, call getLivenessResult to retrieve the result. ${finalUrl}`,
         },
       ],
     };
@@ -42,18 +108,36 @@ server.tool(
     sessionId: z.string().describe("sessionId: the session id in the url"),
   },
   async ({ sessionId }) => {
+    
+    const res = await fetch(`https://${FACEAPI_ENDPOINT}.cognitiveservices.azure.com/face/v1.2/detectLiveness-sessions/${sessionId}`, {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': FACEAPI_KEY,
+      }
+    });
+    const json = await res.json();
+    const status = json.status??"";
+    if (status != "Succeeded") {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `The status of the session is ${status}. Please check the session ID.`,
+          },
+        ],
+      };
+    }
+    
+    const livenessDecisiondecision = json.results?.attempts[0]?.result?.livenessDecision??"";
     let resultText: string;
-    // const getLivenessSessionResultResponse = await client.path(
-    //   '/detectLiveness/singleModal/sessions/{sessionId}', 
-    //   createLivenessSessionResponse.body.sessionId).get();
-
-    // const livenessDecisiondecision = getLivenessSessionResultResponse.body.result?.response.body.livenessDecision;
-
-    if (true) {
+    if (livenessDecisiondecision == "realface") {
       resultText = `${sessionId} is a real person.`
     }
-    else {
+    else if(livenessDecisiondecision == "spoofface") {
       resultText = `${sessionId} failed the liveness check.`
+    }
+    else {
+      resultText = `Failed to get the liveness result. Please check the session ID.`
     }
     return {
       content: [
