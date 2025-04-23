@@ -12,18 +12,21 @@ const server = new McpServer({
 });
 
 server.tool(
-  "start_livenss_authentication",
-  "Start new a liveness face authentication session.  \
-  Return the url for user to perform the authentication session.  The user will needs to be instructed to visit the url and perform the session on their phone. \
-  After the user perform the session, call get_liveness_result to retrieve the result.",
+  "startLivenssAuthentication",
+  "Start new a liveness face authentication session.  \n \
+  @return {string} the url generated for the user to perform the authentication session.",
   {
   },
   async () => {
+    const url = "https://liveness.session.test.com/?sessionId=28472mic82nmx";
+
     return {
       content: [
         {
           type: "text",
-          text: "Please visit url to continue: https://liveness.session.test.com/?sessionId=28472mic82nmx",
+          text: `Show the following url to the user to perform the liveness session. 
+                  The user will needs to be instructed to visit the url and perform the liveness authentication session. 
+                  After the user perform the authentication, call getLivenessResult to retrieve the result. ${url}`,
         },
       ],
     };
@@ -31,18 +34,26 @@ server.tool(
 );
 
 server.tool(
-  "get_liveness_result",
-  "Get the result of liveness session",
+  "getLivenessResult",
+  "Get the result of liveness session. \n \
+   @param sessionId {string} the session id in the url. \n \
+   @return {string} if the person is real or spoof.",
   {
     sessionId: z.string().describe("sessionId: the session id in the url"),
   },
   async ({ sessionId }) => {
-    const randomNumber = randomInt(0, 4); // Generates a random number between 0 and 3
     let resultText: string;
-    if (randomNumber > 0) {
-      resultText = `${sessionId} not performed yet. Please visit the URL and perform the session.`;
-    } else {
-      resultText = `${sessionId} is a real person.`;
+    // const getLivenessSessionResultResponse = await client.path(
+    //   '/detectLiveness/singleModal/sessions/{sessionId}', 
+    //   createLivenessSessionResponse.body.sessionId).get();
+
+    // const livenessDecisiondecision = getLivenessSessionResultResponse.body.result?.response.body.livenessDecision;
+
+    if (true) {
+      resultText = `${sessionId} is a real person.`
+    }
+    else {
+      resultText = `${sessionId} failed the liveness check.`
     }
     return {
       content: [
