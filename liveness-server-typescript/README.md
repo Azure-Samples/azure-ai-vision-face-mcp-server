@@ -1,13 +1,41 @@
 # azure-ai-vision-face-mcp-server-preview
-to use it:
+## add dependency
 go to liveness-server-typescript folder, run
 ```
+$ npm install --save-dev typescript @types/node
+$ npm install
 $ npm run build
 ```
 then in the build folder, you have index.js
-VS Code is configured with mcp.json, just add the keys
-Sample Claude config should be:
+## sample for vs code
+add .vscode/mcp.json
 
+```
+{
+    "servers": {
+        "liveness-server": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "${workspaceFolder}/liveness-server-typescript/build/index.js"
+            ],
+            "env": {
+                "FACEAPI_ENDPOINT": "apiendpoint",
+                "FACEAPI_KEY": "apikey",
+                "FACEAPI_WEBSITE": "https://liveness-webapp.azurewebsites.net",
+                "SESSION_IMAGE_DIR": "${workspaceFolder}/liveness-server-typescript/build/"
+            }
+        }
+    }
+}
+
+```
+
+
+
+
+
+## Sample Claude config should be:
 
 ```
 {
@@ -18,10 +46,14 @@ Sample Claude config should be:
       "env": {
                 "FACEAPI_ENDPOINT": "apiendpoint",
                 "FACEAPI_KEY": "apikey",
-                "FACEAPI_WEBSITE": "https://yourexample.azurewebsites.net"
+                "FACEAPI_WEBSITE": "https://yourexample.azurewebsites.net",
+                "SESSION_IMAGE_DIR": "D:\somePATH"
         }
     }
   }
 }
 
 ```
+
+## Localation of session image
+If you don't set the variable for session image dir, it will be saved at user folder, ~ for linux, which is /home/username usually, or C:\Users\username in windows usually.

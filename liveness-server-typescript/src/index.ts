@@ -2,13 +2,19 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import { promisify } from 'util';
+
 const randomGuidID = uuidv4();
 
 const FACEAPI_ENDPOINT = process.env.FACEAPI_ENDPOINT??"";
 const FACEAPI_KEY = process.env.FACEAPI_KEY?? "";
 const FACEAPI_WEBSITE = process.env.FACEAPI_WEBSITE??"";
 
-// Create server instance
+
+//By default, the session image will be saved in the current user directory (~ or C:\Users\username). You can change it by setting the SESSION_IMAGE_DIR environment variable.
+const sessionImageDir = process.env.SESSION_IMAGE_DIR??".";
+
 const server = new McpServer({
   name: "liveness-server",
   version: "1.0.0",
@@ -128,7 +134,24 @@ server.tool(
       };
     }
     
-    const livenessDecisiondecision = json.results?.attempts[0]?.result?.livenessDecision??"";
+   const livenessDecisiondecision = json.results?.attempts[0]?.result?.livenessDecision??"";
+   const sessionImageId = json.results?.attempts[0]?.result?.sessionImageId??"";
+   if(sessionImageId != ""){
+    const resImage = await fetch(`https://${FACEAPI_ENDPOINT}.cognitiveservices.azure.com/face/v1.2/sessionImages/${sessionImageId}`, {
+      method: 'GET',
+      headers: {
+        'Ocp-Apim-Subscription-Key': FACEAPI_KEY,
+      }
+    });
+    if (resImage.ok) {
+      const buffer = await resImage.arrayBuffer();
+      const writeFile = promisify(fs.writeFile);      
+      const fileDir = sessionImageDir + "/" + sessionId;
+      fs.mkdirSync(fileDir, { recursive: true });
+      await writeFile(fileDir + "/sessionImage.jpg", Buffer.from(buffer));
+    }
+   }
+   
     let resultText: string;
     if (livenessDecisiondecision == "realface") {
       resultText = `${sessionId} is a real person.`
