@@ -26,6 +26,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
     "express": "^5.1.0",
+    "fetch-blob": "^4.0.0",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   }

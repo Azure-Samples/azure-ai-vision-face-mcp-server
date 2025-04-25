@@ -10,6 +10,8 @@
                 "FACEAPI_ENDPOINT": "your_value_here",
                 "FACEAPI_KEY": "your_value_here",
                 "FACEAPI_WEBSITE": "your_value_here"
+                "SESSION_IMAGE_DIR": "${workspaceFolder}/liveness-server-typescript/build/",
+                "VERIFY_IMAGE_FILE_NAME": "${workspaceFolder}/liveness-server-typescript/build/0b5db043-951c-49d4-9109-e11cb558bb79/sessionImage.jpg",
             }
         }
     }
