@@ -57,3 +57,11 @@ add .vscode/mcp.json
 
 ## Localation of session image
 If you don't set the variable for session image dir, it will be saved at user folder, ~ for linux, which is /home/username usually, or C:\Users\username in windows usually.
+
+## Liveness with verify
+When you have a verify image set, it will switch liveness with verify mode.  sample:
+
+```
+"VERIFY_IMAGE_FILE_NAME": "${workspaceFolder}/liveness-server-typescript/build/0b5db043-951c-49d4-9109-e11cb558bb79/sessionImage.jpg",
+
+```
