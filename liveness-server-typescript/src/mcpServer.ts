@@ -2,9 +2,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { z } from "zod";
 import { v4 as uuidv4 } from 'uuid';
-import { LivenessMode } from "./common.js";
-import { startLivenessFunc } from "./startLiveness.js";
-import { getLivenessResultFunc } from "./getLivenessResult.js";
+import { LivenessMode } from "./liveness/common.js";
+import { startLivenessFunc } from "./liveness/startLiveness.js";
+import { getLivenessResultFunc } from "./liveness/getLivenessResult.js";
 export const livenessServer = new McpServer({
   name: "livenessAuthentication",
   version: "0.0.1",
