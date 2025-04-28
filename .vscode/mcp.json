@@ -1,10 +1,10 @@
 {
     "servers": {
-        "liveness-server": {
+        "livenessAuthentication": {
             "type": "stdio",
             "command": "node",
             "args": [
-                "${workspaceFolder}/liveness-server-typescript/build/index.js"
+                "${workspaceFolder}/liveness-server-typescript/build/stdio.js"
             ],
             "env": {
                 "FACEAPI_ENDPOINT": "yourvalue",

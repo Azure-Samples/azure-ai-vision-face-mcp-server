@@ -109,7 +109,7 @@ export const startLivenessFunc = async (faceapiEndpoint: string, faceapiKey: str
         type: "text",
         text: `Show the following url to the user to perform the liveness session. \n \
               The user will needs to be instructed to visit the url ${finalUrl} and perform the liveness authentication session. 
-              After the user perform the authentication, call ${getLivenessResultToolName} with the session ID ${sessionId} to retrieve the result.`,
+              After the user perform the authentication, call ${getLivenessResultToolName} with the session ID ${sessionId} in the tools to retrieve the result.`,
       },
     ],
   };

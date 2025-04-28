@@ -6,7 +6,7 @@ import { LivenessMode } from "./common.js";
 import { startLivenessFunc } from "./startLiveness.js";
 import { getLivenessResultFunc } from "./getLivenessResult.js";
 export const livenessServer = new McpServer({
-  name: "liveness-server",
+  name: "livenessAuthentication",
   version: "0.0.1",
 });
 
@@ -32,8 +32,8 @@ else {
 
 livenessServer.tool(
   startLivenessToolName,
-  "Start new a liveness face authentication session without verify.  \n \
-  @return {string} the url generated for the user to perform the authentication session without verify.",
+  "Start new a liveness face authentication session.  \n \
+  @return the next step for the user to perform the authentication session.",
   {
   },
   async () => {return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, randomGuidID, getLivenessResultToolName, verifyImageFile);},
@@ -41,7 +41,7 @@ livenessServer.tool(
 
 livenessServer.tool(
   getLivenessResultToolName,
-  `Get the result of liveness session without verify. \n \
+  `Get the result of liveness session. \n \
    @param sessionId {string} the session id in the url. \n \
    @return {string} if the person is real or spoof.`,
   {
