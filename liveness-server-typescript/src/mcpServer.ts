@@ -10,15 +10,15 @@ export const livenessServer = new McpServer({
   version: "0.0.1",
 });
 
-const randomGuidID = uuidv4();
-
+const deviceCorrelationId = uuidv4();
 const FACEAPI_ENDPOINT = process.env.FACEAPI_ENDPOINT??"";
 const FACEAPI_KEY = process.env.FACEAPI_KEY?? "";
 const FACEAPI_WEBSITE = process.env.FACEAPI_WEBSITE??"";
 const sessionImageDir = process.env.SESSION_IMAGE_DIR??"";
 const verifyImageFile = process.env.VERIFY_IMAGE_FILE_NAME??"";
 
-
+// Define the liveness server tool names.  It is a variable since it is used in the prompt returned
+// Will be removed when progress is implemented.
 let startLivenessToolName = "startLivenessAuthentication";
 let getLivenessResultToolName = "getLivenessResult";
 
@@ -36,7 +36,7 @@ livenessServer.tool(
   @return the next step for the user to perform the authentication session.",
   {
   },
-  async () => {return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, randomGuidID, getLivenessResultToolName, verifyImageFile);},
+  async () => {return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, deviceCorrelationId, getLivenessResultToolName, verifyImageFile);},
 );
 
 livenessServer.tool(
