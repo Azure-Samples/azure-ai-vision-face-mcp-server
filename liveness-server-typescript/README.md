@@ -17,7 +17,7 @@ add .vscode/mcp.json
             "type": "stdio",
             "command": "node",
             "args": [
-                "${workspaceFolder}/liveness-server-typescript/build/index.js"
+                "${workspaceFolder}/liveness-server-typescript/build/stdio.js"
             ],
             "env": {
                 "FACEAPI_ENDPOINT": "apiendpoint",
@@ -42,7 +42,7 @@ add .vscode/mcp.json
   "mcpServers": {
     "liveness-server": {
       "command": "node",
-      "args": ["YOUR_PATH/build/index.js"],
+      "args": ["YOUR_PATH/build/stdio.js"],
       "env": {
                 "FACEAPI_ENDPOINT": "apiendpoint",
                 "FACEAPI_KEY": "apikey",
