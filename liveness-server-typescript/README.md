@@ -56,7 +56,7 @@ add .vscode/mcp.json
 ```
 
 ## Localation of session image
-If you don't set the variable for session image dir, it will be saved at user folder, ~ for linux, which is /home/username usually, or C:\Users\username in windows usually.
+If you don't set the variable for session image dir, it will not be saved.
 
 ## Liveness with verify
 When you have a verify image set, it will switch liveness with verify mode.  sample:

@@ -14,7 +14,7 @@ const FACEAPI_ENDPOINT = process.env.FACEAPI_ENDPOINT??"";
 const FACEAPI_KEY = process.env.FACEAPI_KEY?? "";
 const FACEAPI_WEBSITE = process.env.FACEAPI_WEBSITE??"";
 //By default, the session image will be saved in the current user directory (~ or C:\Users\username). You can change it by setting the SESSION_IMAGE_DIR environment variable.
-const sessionImageDir = process.env.SESSION_IMAGE_DIR??".";
+const sessionImageDir = process.env.SESSION_IMAGE_DIR??"";
 const verifyImageFile = process.env.VERIFY_IMAGE_FILE_NAME??"";
 
 enum LivenessMode {
@@ -177,11 +177,13 @@ const getLivenessResultFunc = async (sessionId: string, action: LivenessMode): P
     }
   });
   if (resImage.ok) {
-    const buffer = await resImage.arrayBuffer();
-    const writeFile = promisify(fs.writeFile);      
-    const fileDir = sessionImageDir + "/" + sessionId;
-    fs.mkdirSync(fileDir, { recursive: true });
-    await writeFile(fileDir + "/sessionImage.jpg", Buffer.from(buffer));
+    if(sessionImageDir != "") {
+      const buffer = await resImage.arrayBuffer();
+      const writeFile = promisify(fs.writeFile);      
+      const fileDir = sessionImageDir + "/" + sessionId;
+      fs.mkdirSync(fileDir, { recursive: true });
+      await writeFile(fileDir + "/sessionImage.jpg", Buffer.from(buffer));
+    }
   }
  }
  
