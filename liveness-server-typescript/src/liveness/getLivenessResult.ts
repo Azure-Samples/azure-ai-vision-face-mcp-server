@@ -1,14 +1,6 @@
-import { LivenessMode } from "./common.js";
+import { LivenessMode, LivenessResult } from "./common.js";
 import { promisify } from 'util';
 import fs from 'fs';
-
-export type LivenessResult = {
-  sessionId: string;
-  status: string;
-  livenessDecision?: string;
-  verifyMatchDecision?: boolean;
-};
-
 
 export async function getLivenessResult(
   faceapiEndpoint: string, 

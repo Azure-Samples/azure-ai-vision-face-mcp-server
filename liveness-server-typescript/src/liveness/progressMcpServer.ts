@@ -1,4 +1,4 @@
-import { McpServer, ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { CallToolRequestSchema, CallToolResult, ErrorCode, ListToolsRequestSchema, ListToolsResult, McpError, ServerNotification, ServerRequest, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { AnyZodObject, z, ZodRawShape, ZodTypeAny } from "zod";

@@ -1,5 +1,4 @@
-import { LivenessMode } from "./common.js";
-import { LivenessResult } from "./getLivenessResult.js";
+import { LivenessMode, LivenessResult } from "./common.js";
 
 export function livenessVerificationSuccess(livenessResult: LivenessResult, action: LivenessMode): boolean {
     let livenessDecision: boolean | undefined;

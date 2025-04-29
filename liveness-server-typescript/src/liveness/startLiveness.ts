@@ -1,9 +1,9 @@
-import { LivenessMode } from "./common.js";
-import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
+import { LivenessMode, LivenessResult } from "./common.js";
+import { ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { readFile } from 'fs/promises';
 import { File } from 'fetch-blob/from.js';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import {getLivenessResult, LivenessResult} from "./getLivenessResult.js";
+import {getLivenessResult} from "./getLivenessResult.js";
 
 type LivenessPage = {
   sessionId: string;
