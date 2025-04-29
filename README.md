@@ -3,13 +3,17 @@
 Introducing a Face Liveness MCP Server to allow the embedding of proof of presence during Agentic AI workflows.
 
 [![Introduction Video](./MCP-Video-Thumbnail.png)](https://www.youtube.com/watch?v=66sP5z8j_iw)
+## Preview of Single Tool with Progress
+Here's a preview of the MCP server in `liveness-server-typescript-tool-with-progress` folder, using the “Tool with Progress” feature to consolidate the liveness-check workflow into a single step, removing the need for users to type “Done.” Support for this feature in Claude Desktop is not yet available.
+[![Introduction Video](./tool-with-progress-thumbnail.png)](https://www.youtube.com/watch?v=VczrbkMSRtA)
+
 ## Face Liveness Detection
 For more information, visit
 [Face Liveness Detection](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/concept-face-liveness-detection)
 
 ## Running MCP Server
 ### add dependency
-go to liveness-server-typescript folder, run
+go to `liveness-server-typescript` folder, run
 ```
 $ npm install --save-dev typescript @types/node
 $ npm install
@@ -39,10 +43,6 @@ add .vscode/mcp.json
 }
 
 ```
-
-
-
-
 
 ### Sample Claude config should be:
 
@@ -74,3 +74,4 @@ When you have a verify image set, it will switch liveness with verify mode.  sam
 "VERIFY_IMAGE_FILE_NAME": "${workspaceFolder}/liveness-server-typescript/build/0b5db043-951c-49d4-9109-e11cb558bb79/sessionImage.jpg",
 
 ```
+
