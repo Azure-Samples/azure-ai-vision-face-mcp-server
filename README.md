@@ -40,10 +40,6 @@ add .vscode/mcp.json
 
 ```
 
-
-
-
-
 ### Sample Claude config should be:
 
 ```
@@ -74,3 +70,7 @@ When you have a verify image set, it will switch liveness with verify mode.  sam
 "VERIFY_IMAGE_FILE_NAME": "${workspaceFolder}/liveness-server-typescript/build/0b5db043-951c-49d4-9109-e11cb558bb79/sessionImage.jpg",
 
 ```
+
+## Preview of Single Tool with Progress
+Here's a preview of the MCP server in "liveness-server-typescript" folder, using the “Tool with Progress” feature to consolidate the liveness-check workflow into a single step, removing the need for users to type “Done.” Support for this feature in Claude Desktop is not yet available.
+[![Introduction Video](./MCP-Video-Thumbnail.png)](https://www.youtube.com/watch?v=VczrbkMSRtA)
