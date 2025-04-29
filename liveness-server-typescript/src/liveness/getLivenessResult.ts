@@ -13,12 +13,14 @@ export async function getLivenessResult(
   faceapiEndpoint: string, 
   faceapiKey: string, sessionImageDir: 
   string, sessionId: string, 
-  action: LivenessMode): Promise<LivenessResult>{
+  action: LivenessMode,
+  abortSignal: AbortSignal): Promise<LivenessResult>{
     const res = await fetch(`https://${faceapiEndpoint}.cognitiveservices.azure.com/face/v1.2/${action}-sessions/${sessionId}`, {
       method: 'GET',
       headers: {
         'Ocp-Apim-Subscription-Key': faceapiKey,
-      }
+      },
+      signal: abortSignal,
     });
     const json = await res.json();
     const status = json.status??"";
@@ -33,7 +35,8 @@ export async function getLivenessResult(
       method: 'GET',
       headers: {
         'Ocp-Apim-Subscription-Key': faceapiKey,
-      }
+      },
+      signal: abortSignal,
     });
     if (resImage.ok) {
       if(sessionImageDir != "") {

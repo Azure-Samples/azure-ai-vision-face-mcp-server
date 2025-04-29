@@ -16,7 +16,8 @@ async function getLivenessPageUrl(
   faceapiWebsite: string, 
   action: LivenessMode, 
   deviceCorrelationId: string, 
-  verifyImageFileName: string): Promise<LivenessPage> {
+  verifyImageFileName: string,
+  abortSignal: AbortSignal): Promise<LivenessPage> {
     if(faceapiEndpoint == "" || faceapiKey == "" || faceapiWebsite == "") {
       throw new Error("Please set the FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE environment variables for the liveness server.");
     }
@@ -59,6 +60,7 @@ async function getLivenessPageUrl(
       method: 'POST',
       headers: headers,
       body: sessionBody,
+      signal: abortSignal,
     });
   
     
@@ -75,7 +77,8 @@ async function getLivenessPageUrl(
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
-      }
+      },
+      signal: abortSignal,
     });
   
     const json2 = await res2.json();
@@ -99,7 +102,6 @@ export const startLivenessFunc = async (
   sessionImageDir: string,
   progressToken: string|number|undefined,
   extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> => {
-  
 if(progressToken == undefined) {
   return {
     content: [
@@ -113,7 +115,7 @@ if(progressToken == undefined) {
 
 let livenessPage: LivenessPage;
 try {
-  livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName);
+  livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName, extra.signal);
 }
 catch (error) {
   console.error("Error in getLivenessUrl:", error);
@@ -141,11 +143,20 @@ const waitTime = 5000; //5 seconds
 let livenessResult;
 for(let i = 0; i < maxTries; i++) {
   await wait(waitTime);
-  livenessResult = await getLivenessResult(faceapiEndpoint, faceapiKey, sessionImageDir, livenessPage.sessionId, action); 
+  livenessResult = await getLivenessResult(faceapiEndpoint, faceapiKey, sessionImageDir, livenessPage.sessionId, action, extra.signal); 
   if(livenessResult.status == "Succeeded") {
     break;
   }
-
+  if(extra.signal.aborted) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "Session aborted",
+        },
+      ],
+    };
+  }
   if((i+1) % 10 == 0) {
     const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: `${i}: Waiting for the liveness authentication session to complete.  ${livenessPage.url}`}};
     extra.sendNotification(notification).catch((error) => {
