@@ -16,11 +16,6 @@ const FACEAPI_WEBSITE = process.env.FACEAPI_WEBSITE??"";
 const sessionImageDir = process.env.SESSION_IMAGE_DIR??"";
 const verifyImageFile = process.env.VERIFY_IMAGE_FILE_NAME??"";
 
-// Define the liveness server tool names.  It is a variable since it is used in the prompt returned
-// Will be removed when progress is implemented.
-let startLivenessToolName = "startLivenessAuthentication";
-let getLivenessResultToolName = "getLivenessResult";
-
 let action: LivenessMode;
 if(verifyImageFile == "") {
   action = LivenessMode.DetectLiveness;
@@ -30,10 +25,18 @@ else {
 }
 
 livenessServer.toolWithProgress(
-  startLivenessToolName,
+  "startLivenessAuthentication",
 `Start a new liveness face authentication session.`,
   {
   },
   async ({}: any, progressToken: string|number|undefined,extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-    return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, deviceCorrelationId, getLivenessResultToolName, verifyImageFile, progressToken, extra);},
+    return await startLivenessFunc(FACEAPI_ENDPOINT, 
+      FACEAPI_KEY, 
+      FACEAPI_WEBSITE, 
+      action, 
+      deviceCorrelationId,
+      verifyImageFile, 
+      sessionImageDir,
+      progressToken, 
+      extra);},
 );

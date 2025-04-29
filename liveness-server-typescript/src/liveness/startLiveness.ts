@@ -10,8 +10,8 @@ export const startLivenessFunc = async (
   faceapiWebsite: string, 
   action: LivenessMode, 
   deviceCorrelationId: string, 
-  getLivenessResultToolName:string, 
   verifyImageFileName: string,
+  sessionImageDir: string,
   progressToken: string|number|undefined,
   extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> => {
   if(faceapiEndpoint == "" || faceapiKey == "" || faceapiWebsite == "") {
