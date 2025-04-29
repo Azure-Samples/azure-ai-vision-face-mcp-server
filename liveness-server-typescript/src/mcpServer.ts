@@ -1,11 +1,10 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-
-import { z } from "zod";
 import { v4 as uuidv4 } from 'uuid';
 import { LivenessMode } from "./liveness/common.js";
 import { startLivenessFunc } from "./liveness/startLiveness.js";
-import { getLivenessResultFunc } from "./liveness/getLivenessResult.js";
-export const livenessServer = new McpServer({
+import { ProgressMcpServer } from "./liveness/progressMcpServer.js";
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
+export const livenessServer = new ProgressMcpServer({
   name: "liveness-server",
   version: "0.0.1",
 });
@@ -30,22 +29,11 @@ else {
   action = LivenessMode.DetectLivenessWithVerify;
 }
 
-livenessServer.tool(
+livenessServer.toolWithProgress(
   startLivenessToolName,
-  "Start new a liveness face authentication session.  \n \
-  @return the next step for the user to perform the authentication session.",
+`Start a new liveness face authentication session.`,
   {
   },
-  async () => {return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, deviceCorrelationId, getLivenessResultToolName, verifyImageFile);},
-);
-
-livenessServer.tool(
-  getLivenessResultToolName,
-  `Get the result of liveness session. \n \
-   @param sessionId {string} the session id in the url. \n \
-   @return {string} if the person is real or spoof.`,
-  {
-    sessionId: z.string().describe("sessionId: the session id in the url"),
-  },
-  async ({ sessionId}) =>{return await getLivenessResultFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, sessionImageDir, sessionId, action);},
+  async ({}: any, progressToken: string|number|undefined,extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+    return await startLivenessFunc(FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE, action, deviceCorrelationId, getLivenessResultToolName, verifyImageFile, progressToken, extra);},
 );

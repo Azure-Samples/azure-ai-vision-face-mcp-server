@@ -3,8 +3,6 @@ import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { promisify } from 'util';
 import fs from 'fs';
 
-//start the liveness result of the session.  Waiting for the Progress tracking in the MCP protocol to be implemented in the MCP clients so this method can also track the result.
-//https://modelcontextprotocol.io/specification/2025-03-26#overview
 export const getLivenessResultFunc = async (faceapiEndpoint: string, faceapiKey: string, faceapiWebsite: string, sessionImageDir: string, sessionId: string, action: LivenessMode): Promise<CallToolResult> =>  {
     const res = await fetch(`https://${faceapiEndpoint}.cognitiveservices.azure.com/face/v1.2/${action}-sessions/${sessionId}`, {
       method: 'GET',

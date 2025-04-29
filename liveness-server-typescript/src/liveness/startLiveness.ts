@@ -1,10 +1,19 @@
 import { LivenessMode } from "./common.js";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { readFile } from 'fs/promises';
 import { File } from 'fetch-blob/from.js';
-//start the liveness result of the session.  Waiting for the Progress tracking in the MCP protocol to be implemented in the MCP clients so this method can also track the result.
-//https://modelcontextprotocol.io/specification/2025-03-26#overview
-export const startLivenessFunc = async (faceapiEndpoint: string, faceapiKey: string, faceapiWebsite: string, action: LivenessMode, deviceCorrelationId: string, getLivenessResultToolName:string, verifyImageFileName?: string): Promise<CallToolResult> => {
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+
+export const startLivenessFunc = async (
+  faceapiEndpoint: string, 
+  faceapiKey: string, 
+  faceapiWebsite: string, 
+  action: LivenessMode, 
+  deviceCorrelationId: string, 
+  getLivenessResultToolName:string, 
+  verifyImageFileName: string,
+  progressToken: string|number|undefined,
+  extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> => {
   if(faceapiEndpoint == "" || faceapiKey == "" || faceapiWebsite == "") {
     return {
       content: [
@@ -102,15 +111,34 @@ export const startLivenessFunc = async (faceapiEndpoint: string, faceapiKey: str
   }
 
   const finalUrl = faceapiWebsite + shortUrlPostfix;
+if(progressToken == undefined) {
 
   return {
     content: [
       {
         type: "text",
-        text: `Show the following url to the user to perform the liveness session.
-The user will needs to be instructed to visit the url ${finalUrl} and perform the liveness authentication session.
-After the user perform the authentication, call ${getLivenessResultToolName} with the session ID ${sessionId} in the tools to retrieve the result.`,
+        text: "The client doesn't support MCP progress notifications.  Please use a supported client.",
       },
     ],
   };
+}
+
+const returnTextProgress = `Please visit the url and perform the liveness authentication session:  ${finalUrl}`;
+const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: returnTextProgress}};
+extra.sendNotification(notification).catch((error) => {
+  console.error("Error sending notification:", error);
+});
+
+const wait = async(ms: number) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+await wait(50000);
+return {
+  content: [
+    {
+      type: "text",
+      text: "test done",
+    },
+  ],
+};
 };
