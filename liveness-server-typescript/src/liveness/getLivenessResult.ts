@@ -61,10 +61,10 @@ export const getLivenessResultFunc = async (faceapiEndpoint: string, faceapiKey:
         resultText += `\n The verify image is a match.`
       }
       else if(verifyDecision == false) {
-        resultText += `\n The verify image is not a match.`
+        resultText = `${sessionId} authentication failed`
       }
       else {
-        resultText += `\n Failed to get the verify result. Please check the session ID.`
+        resultText = `Failed to get the verify result. Please check the session ID.`
       }
     }
     return {
