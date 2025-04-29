@@ -1,9 +1,19 @@
 import { LivenessMode } from "./common.js";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { promisify } from 'util';
 import fs from 'fs';
 
-export const getLivenessResultFunc = async (faceapiEndpoint: string, faceapiKey: string, faceapiWebsite: string, sessionImageDir: string, sessionId: string, action: LivenessMode): Promise<CallToolResult> =>  {
+type LivenessResult = {
+  status: string;
+  livenessDecision?: string;
+  verifyMatchDecision?: boolean;
+};
+
+
+export async function getLivenessResult(
+  faceapiEndpoint: string, 
+  faceapiKey: string, sessionImageDir: 
+  string, sessionId: string, 
+  action: LivenessMode): Promise<LivenessResult>{
     const res = await fetch(`https://${faceapiEndpoint}.cognitiveservices.azure.com/face/v1.2/${action}-sessions/${sessionId}`, {
       method: 'GET',
       headers: {
@@ -13,19 +23,12 @@ export const getLivenessResultFunc = async (faceapiEndpoint: string, faceapiKey:
     const json = await res.json();
     const status = json.status??"";
     if (status != "Succeeded") {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `The status of the session is ${status}. Please check the session ID.`,
-          },
-        ],
-      };
+      return {status: status};
     }
     
-   const livenessDecisiondecision = json.results?.attempts[0]?.result?.livenessDecision??"";
-   const sessionImageId = json.results?.attempts[0]?.result?.sessionImageId??"";
-   if(sessionImageId != ""){
+  const livenessDecision = json.results?.attempts[0]?.result?.livenessDecision??"";
+  const sessionImageId = json.results?.attempts[0]?.result?.sessionImageId??"";
+  if(sessionImageId != ""){
     const resImage = await fetch(`https://${faceapiEndpoint}.cognitiveservices.azure.com/face/v1.2/sessionImages/${sessionImageId}`, {
       method: 'GET',
       headers: {
@@ -41,36 +44,12 @@ export const getLivenessResultFunc = async (faceapiEndpoint: string, faceapiKey:
         await writeFile(fileDir + "/sessionImage.jpg", Buffer.from(buffer));
       }
     }
-   }
-   
-    let resultText: string;
-    if (livenessDecisiondecision == "realface") {
-      resultText = `${sessionId} is a real person.`
-    }
-    else if(livenessDecisiondecision == "spoofface") {
-      resultText = `${sessionId} failed the liveness check.`
-    }
-    else {
-      resultText = "Failed to get the liveness result. Please check the session ID."
-    }
-    if(action == LivenessMode.DetectLivenessWithVerify) {
-      const verifyDecision = json.results?.attempts[0]?.result?.verifyResult?.isIdentical??"";
-      if(verifyDecision == true) {
-        resultText += "\nThe verify image is a match."
-      }
-      else if(verifyDecision == false) {
-        resultText = `${sessionId} authentication failed`
-      }
-      else {
-        resultText = "Failed to get the verify result. Please check the session ID."
-      }
-    }
-    return {
-      content: [
-        {
-          type: "text",
-          text: resultText,
-        },
-      ],
-    };
-  };
+  }
+  if(action == LivenessMode.DetectLivenessWithVerify) {
+    const verifyDecision = json.results?.attempts[0]?.result?.verifyResult?.isIdentical??"";
+    return {status: status, livenessDecision: livenessDecision, verifyMatchDecision: verifyDecision};
+  }
+  else{
+    return {status: status, livenessDecision: livenessDecision};
+  }
+};
