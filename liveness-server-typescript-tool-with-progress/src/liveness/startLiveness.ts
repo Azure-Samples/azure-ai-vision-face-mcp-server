@@ -117,8 +117,8 @@ const wait = async(ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-const maxTries = 100;//10 minutes
-const waitTime = 5000; //5 seconds
+const maxTries = 600;//600 seconds if wait time is 1 second
+const waitTime = 1000; //1 seconds
 let livenessResult;
 for(let i = 0; i < maxTries; i++) {
   await wait(waitTime);
@@ -129,7 +129,7 @@ for(let i = 0; i < maxTries; i++) {
   if(extra.signal.aborted) {
     throw new Error("Aborted by the user.");
   }
-  if((i+1) % 10 == 0) {
+  if((i+1) % 30 == 0) {
     const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: `${i}: Waiting for the liveness authentication session to complete.  ${livenessPage.url}`}};
     extra.sendNotification(notification).catch((error) => {
       console.error("Error sending notification:", error);
