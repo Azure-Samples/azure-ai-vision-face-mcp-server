@@ -6,7 +6,7 @@ import { LivenessMode } from "./liveness/common.js";
 import { startLivenessFunc } from "./liveness/startLiveness.js";
 import { getLivenessResultFunc } from "./liveness/getLivenessResult.js";
 export const livenessServer = new McpServer({
-  name: "livenessAuthentication",
+  name: "liveness-server",
   version: "0.0.1",
 });
 
