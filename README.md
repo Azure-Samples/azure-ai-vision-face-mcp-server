@@ -3,7 +3,9 @@
 Introducing a Face Liveness MCP Server to allow the embedding of proof of presence during Agentic AI workflows.
 
 [![Introduction Video](./MCP-Video-Thumbnail.png)](https://www.youtube.com/watch?v=66sP5z8j_iw)
-
+## Face Liveness Detection
+For more information, visit
+[Face Liveness Detection](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/concept-face-liveness-detection)
 
 ## add dependency
 go to liveness-server-typescript folder, run
