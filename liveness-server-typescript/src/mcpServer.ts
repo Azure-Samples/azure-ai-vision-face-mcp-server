@@ -4,7 +4,6 @@ import { startLivenessFunc } from "./liveness/startLiveness.js";
 import { ProgressMcpServer } from "./liveness/progressMcpServer.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
-import { setupSampleSecretTool } from './sampleSecretTool/sampleSecretTool.js';
 import { livenessResultToText, livenessVerificationSuccess } from './liveness/utils.js';
 export const livenessServer = new ProgressMcpServer({
   name: "liveness-server",
@@ -26,7 +25,6 @@ else {
   action = LivenessMode.DetectLivenessWithVerify;
 }
 
-let sampleSecretTool = setupSampleSecretTool(livenessServer);
 
 livenessServer.toolWithProgress(
   "startLivenessAuthentication",
@@ -46,8 +44,7 @@ livenessServer.toolWithProgress(
         extra);
 
         if(livenessVerificationSuccess(livenessResult, action)) {
-          //Enable the secret tool
-          sampleSecretTool.enable();
+          //can have additional logic here to do something with the result
         }
 
         let resultText = livenessResultToText(livenessResult, action);
