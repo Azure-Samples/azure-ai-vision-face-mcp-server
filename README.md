@@ -3,9 +3,8 @@
 Introducing a Face Liveness MCP Server to allow the embedding of proof of presence during Agentic AI workflows.
 
 [![Introduction Video](./MCP-Video-Thumbnail.png)](https://www.youtube.com/watch?v=66sP5z8j_iw)
-
-
-Here's a preview of the MCP server in "liveness-server-typescript" folder, using the “Tool with Progress” feature to consolidate the liveness-check workflow into a single step, removing the need for users to type “Done.” Support for this feature in Claude Desktop is not yet available.
+## Preview of Single Tool with Progress
+Here's a preview of the MCP server in "liveness-server-typescript-tool-with-progress" folder, using the “Tool with Progress” feature to consolidate the liveness-check workflow into a single step, removing the need for users to type “Done.” Support for this feature in Claude Desktop is not yet available.
 [![Introduction Video](./tool-with-progress-thumbnail.png)](https://www.youtube.com/watch?v=VczrbkMSRtA)
 
 ## Face Liveness Detection
