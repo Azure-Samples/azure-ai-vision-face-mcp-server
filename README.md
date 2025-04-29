@@ -7,7 +7,8 @@ Introducing a Face Liveness MCP Server to allow the embedding of proof of presen
 For more information, visit
 [Face Liveness Detection](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/concept-face-liveness-detection)
 
-## add dependency
+## Running MCP Server
+### add dependency
 go to liveness-server-typescript folder, run
 ```
 $ npm install --save-dev typescript @types/node
@@ -15,7 +16,7 @@ $ npm install
 $ npm run build
 ```
 then in the build folder, you have index.js
-## sample for vs code
+### sample for vs code
 add .vscode/mcp.json
 
 ```
@@ -43,7 +44,7 @@ add .vscode/mcp.json
 
 
 
-## Sample Claude config should be:
+### Sample Claude config should be:
 
 ```
 {
@@ -63,10 +64,10 @@ add .vscode/mcp.json
 
 ```
 
-## Localation of session image
+### Localation of session image
 If you don't set the variable for SESSION_IMAGE_DIR, images will not be saved.
 
-## Liveness with verify
+### Liveness with verify
 When you have a verify image set, it will switch liveness with verify mode.  sample:
 
 ```
