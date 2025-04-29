@@ -2,7 +2,8 @@ import { LivenessMode } from "./common.js";
 import { promisify } from 'util';
 import fs from 'fs';
 
-type LivenessResult = {
+export type LivenessResult = {
+  sessionId: string;
   status: string;
   livenessDecision?: string;
   verifyMatchDecision?: boolean;
@@ -11,8 +12,9 @@ type LivenessResult = {
 
 export async function getLivenessResult(
   faceapiEndpoint: string, 
-  faceapiKey: string, sessionImageDir: 
-  string, sessionId: string, 
+  faceapiKey: string, 
+  sessionImageDir: string,
+  sessionId: string, 
   action: LivenessMode,
   abortSignal: AbortSignal): Promise<LivenessResult>{
     const res = await fetch(`https://${faceapiEndpoint}.cognitiveservices.azure.com/face/v1.2/${action}-sessions/${sessionId}`, {
@@ -25,7 +27,7 @@ export async function getLivenessResult(
     const json = await res.json();
     const status = json.status??"";
     if (status != "Succeeded") {
-      return {status: status};
+      return {sessionId: sessionId, status: status};
     }
     
   const livenessDecision = json.results?.attempts[0]?.result?.livenessDecision??"";
@@ -50,9 +52,9 @@ export async function getLivenessResult(
   }
   if(action == LivenessMode.DetectLivenessWithVerify) {
     const verifyDecision = json.results?.attempts[0]?.result?.verifyResult?.isIdentical??"";
-    return {status: status, livenessDecision: livenessDecision, verifyMatchDecision: verifyDecision};
+    return {sessionId: sessionId, status: status, livenessDecision: livenessDecision, verifyMatchDecision: verifyDecision};
   }
   else{
-    return {status: status, livenessDecision: livenessDecision};
+    return {sessionId: sessionId, status: status, livenessDecision: livenessDecision};
   }
 };

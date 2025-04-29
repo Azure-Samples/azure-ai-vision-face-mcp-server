@@ -3,7 +3,7 @@ import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontext
 import { readFile } from 'fs/promises';
 import { File } from 'fetch-blob/from.js';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import {getLivenessResult} from "./getLivenessResult.js";
+import {getLivenessResult, LivenessResult} from "./getLivenessResult.js";
 
 type LivenessPage = {
   sessionId: string;
@@ -92,7 +92,7 @@ async function getLivenessPageUrl(
     return {sessionId: sessionId, url: finalUrl};
 }
 
-export const startLivenessFunc = async (
+export async function startLivenessFunc(
   faceapiEndpoint: string, 
   faceapiKey: string, 
   faceapiWebsite: string, 
@@ -101,38 +101,17 @@ export const startLivenessFunc = async (
   verifyImageFileName: string,
   sessionImageDir: string,
   progressToken: string|number|undefined,
-  extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> => {
+  extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<LivenessResult> {
 if(progressToken == undefined) {
-  return {
-    content: [
-      {
-        type: "text",
-        text: "The client doesn't support MCP progress notifications.  Please use a supported client.",
-      },
-    ],
-  };
+  throw new Error("The client doesn't support MCP progress notifications.  Please use a supported client.");
 };
 
 let livenessPage: LivenessPage;
-try {
-  livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName, extra.signal);
-}
-catch (error) {
-  console.error("Error in getLivenessUrl:", error);
-  return {
-    content: [
-      {
-        type: "text",
-        text: `Failed to create liveness session. ${error}`,
-      },
-    ],
-  };
-}
+livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName, extra.signal);
+
 const returnTextProgress = `Please visit the url and perform the liveness authentication session:  ${livenessPage.url}`;
 const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: returnTextProgress}};
-extra.sendNotification(notification).catch((error) => {
-  console.error("Error sending notification:", error);
-});
+extra.sendNotification(notification);
 
 const wait = async(ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -148,14 +127,7 @@ for(let i = 0; i < maxTries; i++) {
     break;
   }
   if(extra.signal.aborted) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: "Session aborted",
-        },
-      ],
-    };
+    throw new Error("Aborted by the user.");
   }
   if((i+1) % 10 == 0) {
     const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: `${i}: Waiting for the liveness authentication session to complete.  ${livenessPage.url}`}};
@@ -166,46 +138,9 @@ for(let i = 0; i < maxTries; i++) {
 }
 
 if(livenessResult?.status != "Succeeded") {
-  return {
-    content: [
-      {
-        type: "text",
-        text: "Session time out or error",
-      },
-    ],
-  };
+  throw new Error("Session time out or error");
 }
 else {
-  let resultText: string;
-  if(livenessResult.livenessDecision == "realface") {
-    resultText = `${livenessPage.sessionId} is a real person.`
-  }
-  else if(livenessResult.livenessDecision == "spoofface") {
-    resultText = `${livenessPage.sessionId} failed the liveness check.`
-  }
-  else { 
-    resultText = "Failed to get the liveness result. Please check the session ID."
-  }
-
-  if(action == LivenessMode.DetectLivenessWithVerify) {
-    const verifyDecision = livenessResult.verifyMatchDecision??"";
-    if(verifyDecision == true) {
-      resultText += "\nThe verify image is a match."
-    }
-    else if(verifyDecision == false) {
-      resultText = `${livenessPage.sessionId} authentication failed`
-    }
-    else {
-      resultText = "Failed to get the verify result. Please check the session ID."
-    }
-  }
-  return {
-    content: [
-      {
-        type: "text",
-        text: resultText,
-      },
-    ],
-  };
+  return livenessResult;
 }
 };
