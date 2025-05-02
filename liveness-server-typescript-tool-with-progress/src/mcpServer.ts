@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { LivenessMode } from "./liveness/common.js";
 import { startLivenessFunc } from "./liveness/startLiveness.js";
-import { ProgressMcpServer } from "./liveness/progressMcpServer.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 import { livenessResultToText, livenessVerificationSuccess } from './liveness/utils.js';
-export const livenessServer = new ProgressMcpServer({
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+export const livenessServer = new McpServer({
   name: "liveness-server",
   version: "0.0.1",
 });
@@ -26,12 +26,12 @@ else {
 }
 
 
-livenessServer.toolWithProgress(
+livenessServer.tool(
   "startLivenessAuthentication",
 `Start a new liveness face authentication session.`,
-  {
-  },
-  async ({}: any, progressToken: string|number|undefined,extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+{},
+    async (extra: any) => {
+    console.warn("startLivenessAuthentication called with extra: ", extra);
     try {
       const livenessResult = await startLivenessFunc(FACEAPI_ENDPOINT, 
         FACEAPI_KEY, 
@@ -40,7 +40,6 @@ livenessServer.toolWithProgress(
         deviceCorrelationId,
         verifyImageFile, 
         sessionImageDir,
-        progressToken, 
         extra);
 
         if(livenessVerificationSuccess(livenessResult, action)) {

@@ -16,8 +16,7 @@ async function getLivenessPageUrl(
   faceapiWebsite: string, 
   action: LivenessMode, 
   deviceCorrelationId: string, 
-  verifyImageFileName: string,
-  abortSignal: AbortSignal): Promise<LivenessPage> {
+  verifyImageFileName: string): Promise<LivenessPage> {
     if(faceapiEndpoint == "" || faceapiKey == "" || faceapiWebsite == "") {
       throw new Error("Please set the FACEAPI_ENDPOINT, FACEAPI_KEY, FACEAPI_WEBSITE environment variables for the liveness server.");
     }
@@ -60,7 +59,6 @@ async function getLivenessPageUrl(
       method: 'POST',
       headers: headers,
       body: sessionBody,
-      signal: abortSignal,
     });
   
     
@@ -78,7 +76,6 @@ async function getLivenessPageUrl(
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
       },
-      signal: abortSignal,
     });
   
     const json2 = await res2.json();
@@ -100,19 +97,18 @@ export async function startLivenessFunc(
   deviceCorrelationId: string, 
   verifyImageFileName: string,
   sessionImageDir: string,
-  progressToken: string|number|undefined,
   extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<LivenessResult> {
+const progressToken: string| number| undefined = extra._meta?.progressToken;
 if(progressToken == undefined) {
   throw new Error("The client doesn't support MCP progress notifications.  Please use a supported client.");
 };
 
 let livenessPage: LivenessPage;
-livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName, extra.signal);
+livenessPage = await getLivenessPageUrl(faceapiEndpoint, faceapiKey, faceapiWebsite, action, deviceCorrelationId, verifyImageFileName);
 
 const returnTextProgress = `Please visit the url and perform the liveness authentication session:  ${livenessPage.url}`;
-const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: returnTextProgress}};
+const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, messages: returnTextProgress}};
 extra.sendNotification(notification);
-
 const wait = async(ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
@@ -122,15 +118,12 @@ const waitTime = 1000; //1 seconds
 let livenessResult;
 for(let i = 0; i < maxTries; i++) {
   await wait(waitTime);
-  livenessResult = await getLivenessResult(faceapiEndpoint, faceapiKey, sessionImageDir, livenessPage.sessionId, action, extra.signal); 
+  livenessResult = await getLivenessResult(faceapiEndpoint, faceapiKey, sessionImageDir, livenessPage.sessionId, action); 
   if(livenessResult.status == "Succeeded") {
     break;
   }
-  if(extra.signal.aborted) {
-    throw new Error("Aborted by the user.");
-  }
-  if((i+1) % 30 == 0) {
-    const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 0, message: `${i}: Waiting for the liveness authentication session to complete.  ${livenessPage.url}`}};
+  if((i) % 30 == 0) {
+    const notification: ServerNotification = {method: "notifications/progress", params: {progressToken: progressToken, progress: 1, message: `${i}: Please visit the url and perform the liveness authentication session.  ${livenessPage.url}`}};
     extra.sendNotification(notification).catch((error) => {
       console.error("Error sending notification:", error);
     });
